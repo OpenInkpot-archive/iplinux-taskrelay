@@ -1,3 +1,9 @@
+taskrelay (0.1.2) asimov; urgency=low
+
+  * Debug leftovers removed.
+
+ -- Mikhail Gusarov <dottedmag@dottedmag.net>  Thu, 12 Mar 2009 04:52:21 +0600
+
 taskrelay (0.1.1) asimov; urgency=low
 
   * taskrelay is Arch: any, not Arch:all: runtask is a binary.
