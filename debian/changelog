@@ -1,3 +1,9 @@
+taskrelay (0.1.1) asimov; urgency=low
+
+  * taskrelay is Arch: any, not Arch:all: runtask is a binary.
+
+ -- Mikhail Gusarov <dottedmag@dottedmag.net>  Thu, 12 Mar 2009 04:43:49 +0600
+
 taskrelay (0.1) asimov; urgency=low
 
   * Initial version
