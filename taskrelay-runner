@@ -1,0 +1,32 @@
+#!/bin/sh
+set -e
+
+if [ $# -ne 1 ]; then
+    echo "Usage: $0 <config>"
+    exit 1
+fi
+
+if expr "$1" : / >/dev/null; then
+    CONF="$1"
+else
+    CONF=$(pwd)/"$1"
+fi
+
+. $CONF
+
+LOCK=$OUTGOING/
+lockfile-create -q --retry 0 $LOCK || exit 0
+lockfile-touch $LOCK &
+LF=$!
+
+rmlock() {
+  RET=$?
+  kill $LF ||:
+  lockfile-remove $LOCK ||:
+  return $RET
+}
+trap rmlock 0 HUP PIPE INT QUIT TERM
+
+inoticoming --foreground --initialsearch \
+    $OUTGOING --suffix .task --chdir $OUTGOING \
+    taskrelay-mail "$CONF" {} \;

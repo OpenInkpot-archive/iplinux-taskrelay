@@ -1,0 +1,30 @@
+#!/bin/sh
+set -e
+
+if [ $# -ne 2 ]; then
+    echo "Usage: $0 <config> <task file>"
+    exit 1
+fi
+
+. $1
+LOCALFILE="$2"
+
+SUBMITTER=$(cat "$LOCALFILE" | awk '{print $1}')"$USERS_DOMAIN"
+
+pkgrelay() {
+    echo "Incoming: $LOCALFILE"
+    echo "Moving to $REMOTE_DIR."
+
+    set -x
+
+    scp $SCP_ARGS $LOCALFILE $REMOTE_DIR
+    rm -f $LOCALFILE
+}
+
+if OUT=$(pkgrelay "$@" 2>&1); then
+    SUBJ="[$PREFIX] $LOCALFILE -> $REMOTE_DIR"
+else
+    SUBJ="[${PREFIX}:FAIL] $LOCALFILE-> $REMOTE_DIR"
+fi
+
+echo "$OUT" | mail -a "From: $FROM_MAIL" -s "$SUBJ" $TO_MAIL $SUBMITTER

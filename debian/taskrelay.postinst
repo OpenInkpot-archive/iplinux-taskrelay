@@ -1,0 +1,11 @@
+#!/bin/sh
+set -e
+
+adduser --system --group taskrelay
+chown taskrelay:taskrelay /usr/bin/runtask
+chmod 4754 /usr/bin/runtask
+chown taskrelay:taskrelay /usr/lib/taskrelay/task-scheduler
+chmod 744 /usr/lib/taskrelay/task-scheduler
+
+#DEBHELPER#
+exit 0

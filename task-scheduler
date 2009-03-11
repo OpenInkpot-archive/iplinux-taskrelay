@@ -1,0 +1,105 @@
+#!/bin/sh
+set -e
+
+#. /etc/taskrelay/taskrelay.conf
+. ./example.conf
+
+usage() {
+    echo "Usage: runtask <conf> <package> <version>"
+    echo "  conf = <repository>-<suite>"
+    echo "  repository = "$(echo $REPOSITORIES | sed 's/ /|/g')
+    echo "  suite = "$(echo $SUITES | sed 's/ /|/g')
+    echo
+    echo "Example: runtask iplinux-asimov busybox 1.14-1"
+}
+
+rungit() {
+    GIT_DIR="$GIT_REPO" git "$@"
+}
+
+if [ $# -ne 4 ]; then
+    usage
+    exit 1
+fi
+
+USER=$1
+CONF=$2
+PACKAGE=$3
+VERSION=$4
+
+for repo in $REPOSITORIES; do
+    for suite in $SUITES; do
+        if [ x$repo-$suite = x$CONF ]; then
+            REPO=$repo
+            SUITE=$suite
+        fi
+    done
+done
+
+if [ $REPO-$SUITE = - ]; then
+    echo "Configuration $CONF is not known"
+    exit 1
+fi
+
+if ! [ -d "$OUTGOING" ]; then
+    echo "Outgoing repository $OUTGOING does not exit"
+    exit 1
+fi
+
+GIT_BASE=$(eval 'echo $GIT_'$REPO)
+
+GIT_REPO=$GIT_BASE/"$PACKAGE"$GIT_SUFFIX
+
+if ! [ -d "$GIT_REPO" ]; then
+    echo "Package $PACKAGE ($GIT_REPO) not found"
+    exit 1
+fi
+
+CLEANVERSION=$(echo "$VERSION" | sed 's/:/+/g')
+TAGNAME="$SUITE/$CLEANVERSION"
+
+TAGNUM=$(rungit tag -l "$TAGNAME" | wc -l)
+
+if [ $TAGNUM -eq 0 ]; then
+    echo "Tag $TAGNAME is not found for package $PACKAGE"
+    exit 1
+fi
+
+if [ $TAGNUM -ne 1 ]; then
+    echo "Ambigous version $VERSION for package $PACKAGE:"
+    rungit tag -l "$TAGNAME"
+    exit 1
+fi
+
+if ! CONTROL=$(rungit cat-file blob "$TAGNAME:debian/control"); then
+    echo "Unable to find debian/control for package $PACKAGE $VERSION"
+    exit 1
+fi
+
+SECTION=$(echo "$CONTROL" | awk '
+/Section/ { print $2; exit; }
+/Package/ { exit; }
+')
+
+if [ -z $SECTION ]; then
+    echo "Unknown Section in debian/control for package $PACKAGE $VERSION"
+    exit 1
+fi
+
+create_task() {
+    TASKNAME="$USER-$CONF-$PACKAGE-$CLEANVERSION-$1.task"
+    TMPTASK=$(mktemp -p "$OUTGOING" "$TASKNAME.XXXXXXXX")
+    echo "$USER $CONF $PACKAGE $VERSION $1" > "$TMPTASK"
+    chmod go+r "$TMPTASK"
+    mv "$TMPTASK" "$OUTGOING/$TASKNAME"
+}
+
+if [ 'xhost/tools' = x$SECTION ]; then
+    create_task host
+    if echo "$CONTROL" | grep -qi 'XCS-Cross-Mode: both'; then
+        create_task target
+    fi
+else
+    create_task target
+fi
+
