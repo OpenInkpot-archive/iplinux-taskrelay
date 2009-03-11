@@ -6,8 +6,8 @@ Build-Depends: debhelper (>= 7)
 Standards-Version: 3.8.0
 
 Package: taskrelay
-Architecture: all
-Depends: lockfile-progs, inoticoming, mailx, devscripts, openssh-client
+Architecture: any
+Depends: ${shlibs:Depends}, lockfile-progs, inoticoming, mailx, devscripts, openssh-client
 Description: Tool for publishing build task requests
  Taskrelay allows maintainers to request package builds.
 
