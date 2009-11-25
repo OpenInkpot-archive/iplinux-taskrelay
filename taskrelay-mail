@@ -11,6 +11,14 @@ LOCALFILE="$2"
 
 SUBMITTER=$(cat "$LOCALFILE" | awk '{print $1}')"$USERS_DOMAIN"
 
+CONF=$(cat "$LOCALFILE" | awk '{print $2}')
+REPOSITORY=$(echo "$CONF" | cut -d- -f1)
+
+TO=$(eval echo '$'${REPOSITORY}_TO_MAIL)
+if [ -z $TO ]; then
+    TO=$TO_MAIL
+fi
+
 pkgrelay() {
     echo "Incoming: $LOCALFILE"
     echo "Moving to $REMOTE_DIR."
@@ -27,4 +35,4 @@ else
     SUBJ="[${PREFIX}:FAIL] $LOCALFILE-> $REMOTE_DIR"
 fi
 
-echo "$OUT" | mail -a "From: $FROM_MAIL" -s "$SUBJ" $TO_MAIL $SUBMITTER
+echo "$OUT" | mail -a "From: $FROM_MAIL" -s "$SUBJ" $TO $SUBMITTER
