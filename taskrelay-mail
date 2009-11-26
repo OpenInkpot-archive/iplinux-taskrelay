@@ -35,4 +35,4 @@ else
     SUBJ="[${PREFIX}:FAIL] $LOCALFILE-> $REMOTE_DIR"
 fi
 
-echo "$OUT" | mail -a "From: $FROM_MAIL" -s "$SUBJ" $TO $SUBMITTER
+echo "$OUT" | mail -a "From: $FROM_MAIL" -a "X-List-Cc: $SUBMITTER" -s "$SUBJ" $TO
