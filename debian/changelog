@@ -1,3 +1,9 @@
+taskrelay (0.1.4) asimov; urgency=low
+
+  * Put submitter's mail address to X-List-Cc, not to To: header.
+
+ -- Mikhail Gusarov <dottedmag@dottedmag.net>  Thu, 26 Nov 2009 09:05:53 +0600
+
 taskrelay (0.1.3) asimov; urgency=low
 
   * Hackishly add sending email to several maillists.
