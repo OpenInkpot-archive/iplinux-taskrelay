@@ -54,7 +54,7 @@ if ! [ -d "$GIT_REPO" ]; then
     exit 1
 fi
 
-CLEANVERSION=$(echo "$VERSION" | sed 's/:/+/g')
+CLEANVERSION=$(echo "$VERSION" | sed -e 's/:/+/g' -e 's/~/./g')
 TAGNAME="$SUITE/$CLEANVERSION"
 
 TAGNUM=$(rungit tag -l "$TAGNAME" | wc -l)
