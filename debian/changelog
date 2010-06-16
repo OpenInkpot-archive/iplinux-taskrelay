@@ -1,3 +1,9 @@
+taskrelay (0.1.5) zelazny; urgency=low
+
+  * Fix handling ~ in versions (OI#384)
+
+ -- Mikhail Gusarov <dottedmag@dottedmag.net>  Wed, 16 Jun 2010 19:04:10 +0700
+
 taskrelay (0.1.4) asimov; urgency=low
 
   * Put submitter's mail address to X-List-Cc, not to To: header.
